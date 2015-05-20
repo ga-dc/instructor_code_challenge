@@ -3,17 +3,34 @@ var app = express();
 var bodyParser = require("body-parser")
 var fs = require('fs');
 var path = require('path');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/instructor_code_challenge');
 
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
-app.use('/', express.static(path.join(__dirname, 'public')));
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function (callback) {
+  console.log("Connection established to: ", db.name)
+});
+
+var favoriteSchema = mongoose.Schema({
+  name: String,
+  oid: String
+})
+
+var Favorite = mongoose.model('Favorite', favoriteSchema)
 
 app.get('/favorites', function(req, res){
-  var data = fs.readFileSync('./data.json');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+  var favs = Favorite.find({});
+  favs.select('-_id oid name');
+  favs.exec(function(err, favs){
+    if(err) return handleError(err);
+    res.setHeader('Content-Type', 'application/json');
+    res.send(favs);
+  })
 });
 
 app.post('/favorites', function(req, res){
@@ -21,11 +38,12 @@ app.post('/favorites', function(req, res){
     res.send("Error: [oid, name] are required.  Found: '" + Object.keys(req.body) + "'");
     return
   }
-  var data = JSON.parse(fs.readFileSync('./data.json'));
-  data.push(req.body);
-  fs.writeFile('./data.json', JSON.stringify(data));
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+
+  Favorite.create(req.body, function(err, fav){
+    if(err) return handleError(err);
+    res.setHeader('Content-Type', 'application/json');
+    res.send(fav);
+  });
 });
 
 app.listen(3000, function(){
