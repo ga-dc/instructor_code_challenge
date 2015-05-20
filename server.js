@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 app.get('/favorites', function(req, res){
-  Favorite.find({}, function(err, favorites){
+  Favorite.find({},'-_id -__v ' , function(err, favorites){
     if(err){
       console.error('Error Saving', err);
       res.send('Error fetching');
