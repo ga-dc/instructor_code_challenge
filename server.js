@@ -3,6 +3,7 @@ var app = express();
 var bodyParser = require("body-parser")
 var fs = require('fs');
 var path = require('path');
+<<<<<<< HEAD
 var mongoose = require('mongoose');
 mongoose.connect("mongodb://localhost/milk-n-cookies");
 
@@ -46,6 +47,34 @@ app.post('/favorites', function(req, res){
   new_movie.save(function(err, movie){
    if (err) return console.error(err);
   })
+=======
+var bodyParser = require("body-parser")
+
+app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+
+app.get("/favorites", function(req, res){
+  var data = fs.readFileSync('./data.json');
+  res.setHeader('Content-Type', 'application/json');
+  res.send(data);
+
+  });
+
+app.post('/favorites', function(req, res){
+
+  if(!req.body.name || !req.body.oid){
+    
+    return res.send("Error");
+  }
+  
+  var data = JSON.parse(fs.readFileSync('./data.json'));
+  data.push(req.body);
+  fs.writeFile('./data.json', JSON.stringify(data));
+  res.setHeader('Content-Type', 'application/json');
+  res.send(data);
+>>>>>>> master
 });
 
 app.listen(3000, function(){
