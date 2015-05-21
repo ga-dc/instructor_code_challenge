@@ -1,32 +1,108 @@
+<<<<<<< HEAD
+
 var express = require('express');
 var app = express();
+var bodyParser = require("body-parser")
+
 var fs = require('fs');
 var path = require('path');
 
-app.use(express.static(path.join(__dirname, '/public')));
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json());
+var mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost/milk-n-cookies");
 
-app.use('/', express.static(path.join(__dirname, 'public'));
+
+var mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost/milk-n-cookies");
+
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function(callback){
+  console.log("Connection established to to:", db.name)
+})
+
+var movieSchema = mongoose.Schema({
+  name: String,
+  oid: Number
+})
+
+var Movie = mongoose.model("Movie", movieSchema);
+
+ 
+
+// app.use(express.static(path.join(__dirname, '/public')));
+// app.use(bodyParser.urlencoded({ extended: false }))
+// app.use(bodyParser.json());
+
+=======
+var fs = require('fs');
+var path = require('path');
+
+
+var mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost/milk-n-cookies");
+
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function(callback){
+  console.log("Connection established to to:", db.name)
+})
+
+var movieSchema = mongoose.Schema({
+  name: String,
+  oid: Number
+})
+
+var Movie = mongoose.model("Movie", movieSchema);
+
+ 
+
+// app.use(express.static(path.join(__dirname, '/public')));
+// app.use(bodyParser.urlencoded({ extended: false }))
+// app.use(bodyParser.json());
+
+>>>>>>> master
+// app.use('/', express.static(path.join(__dirname, 'public')));
 
 app.get('/favorites', function(req, res){
-  var data = fs.readFileSync('./data.json');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
-;
-
-app.get('favorites', function(req, res){
-  if(!req.body.name || !req.body.oid){
-    res.send("Error");
-    return
-  
-  var data = JSON.parse(fs.readFileSync('./data.json'));
-  data.push(req.body);
-  fs.writeFile('./data.json', JSON.stringify(data));
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+  Movie.find(function(err, Movie){
+                  if(err)return console.error(err);
+                  res.send( Movie) ;
+                })
 });
 
-app.list(3000, function(){
+app.post('/favorites', function(req, res){
+  if(!req.body.name || !req.body.oid){
+    res.send("Error: [oid, name] are required.  Found: '" + Object.keys(req.body) + "'");
+    
+  }
+  var new_movie = new Movie({name: req.body.name, oid: req.body.oid})
+  res.send(new_movie);
+
+  new_movie.save(function(err, movie){
+   if (err) return console.error(err);
+  })
+
+
+<<<<<<< HEAD
+
+app.post('/favorites', function(req, res){
+  if(!req.body.name || !req.body.oid){
+    res.send("Error: [oid, name] are required.  Found: '" + Object.keys(req.body) + "'");
+    
+  }
+  var new_movie = new Movie({name: req.body.name, oid: req.body.oid})
+  res.send(new_movie);
+
+  new_movie.save(function(err, movie){
+   if (err) return console.error(err);
+  })
+
+=======
+>>>>>>> master
+});
+
+app.listen(3000, function(){
   console.log("Listening on port 3000");
 });
