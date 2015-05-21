@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 var express = require('express');
 var app = express();
@@ -33,6 +34,35 @@ var Movie = mongoose.model("Movie", movieSchema);
 // app.use(bodyParser.urlencoded({ extended: false }))
 // app.use(bodyParser.json());
 
+=======
+var fs = require('fs');
+var path = require('path');
+
+
+var mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost/milk-n-cookies");
+
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function(callback){
+  console.log("Connection established to to:", db.name)
+})
+
+var movieSchema = mongoose.Schema({
+  name: String,
+  oid: Number
+})
+
+var Movie = mongoose.model("Movie", movieSchema);
+
+ 
+
+// app.use(express.static(path.join(__dirname, '/public')));
+// app.use(bodyParser.urlencoded({ extended: false }))
+// app.use(bodyParser.json());
+
+>>>>>>> master
 // app.use('/', express.static(path.join(__dirname, 'public')));
 
 app.get('/favorites', function(req, res){
@@ -55,6 +85,7 @@ app.post('/favorites', function(req, res){
   })
 
 
+<<<<<<< HEAD
 
 app.post('/favorites', function(req, res){
   if(!req.body.name || !req.body.oid){
@@ -68,6 +99,8 @@ app.post('/favorites', function(req, res){
    if (err) return console.error(err);
   })
 
+=======
+>>>>>>> master
 });
 
 app.listen(3000, function(){
