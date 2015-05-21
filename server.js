@@ -1,32 +1,43 @@
+//Various requirements
 var express = require('express');
 var app = express();
+var bodyParser = require("body-parser")
 var fs = require('fs');
 var path = require('path');
 
-app.use(express.static(path.join(__dirname, '/public')));
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json());
+//Requiring db connection and Favorite schema/model
+var orm = require('./orm.js');
+orm.connect(main);
 
-app.use('/', express.static(path.join(__dirname, 'public'));
+var favoriteService = require('./services/favorite-service');
 
-app.get('/favorites', function(req, res){
-  var data = fs.readFileSync('./data.json');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
-;
+function main(){
+  app.use(express.static(path.join(__dirname, '/public')));
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use(bodyParser.json());
 
-app.get('favorites', function(req, res){
-  if(!req.body.name || !req.body.oid){
-    res.send("Error");
-    return
-  
-  var data = JSON.parse(fs.readFileSync('./data.json'));
-  data.push(req.body);
-  fs.writeFile('./data.json', JSON.stringify(data));
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
-});
+  app.use('/', express.static(path.join(__dirname, 'public')));
 
-app.list(3000, function(){
-  console.log("Listening on port 3000");
-});
+  app.get('/favorites', function(req, res){
+    var data = fs.readFileSync('./data.json');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(data);
+  });
+
+  app.post('/favorites', function(req, res){
+    favoriteService.addFavorite(req.body, function(err){ 
+      if (err) {
+      res.send("Error: [oid, name] are required.  Found: '" + Object.keys(req.body) + "'")};
+    });
+    var data = JSON.parse(fs.readFileSync('./data.json'));
+    data.push(req.body);
+    fs.writeFile('./data.json', JSON.stringify(data));
+    res.setHeader('Content-Type', 'application/json');
+    res.send(data);
+  });
+
+  app.listen(3000, function(){
+    console.log("Listening on port 3000");
+  });
+
+}
