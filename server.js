@@ -35,19 +35,11 @@ app.get('/favorites', function(req, res){
 });
 
 app.post('/favorites', function(req, res){
-  var newFave = new Favorite({});
+  var newFave = new Favorite({oid: "save", name: "me"});
    newFave.save(function(err) {
-     if(!req.body.name || !req.body.oid){
-       res.send("Error: [oid, name] are required.  Found: '" + Object.keys(req.body) + "'");
-       return
-     }
-   });
-
-  var data = JSON.parse(fs.readFileSync('./data.json'));
-  data.push(req.body);
-  fs.writeFile('./data.json', JSON.stringify(data));
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+      if (err) return handleError(err) 
+       res.send(newFave)
+     })
 });
 
 app.listen(3000, function(){
