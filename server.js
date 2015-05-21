@@ -1,32 +1,46 @@
 var express = require('express');
 var app = express();
+var bodyParser = require("body-parser")
 var fs = require('fs');
 var path = require('path');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/milk-and-cookies');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function (callback) {
+  console.log("Connection established to: ", db.name)
+});
+
 
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
-app.use('/', express.static(path.join(__dirname, 'public'));
+app.use('/', express.static(path.join(__dirname, 'public')));
+
+var favoriteSchema = mongoose.Schema({
+    oid: String,
+    name: String,
+})
+
+var Favorite = mongoose.model('Favorite', favoriteSchema);
+
 
 app.get('/favorites', function(req, res){
-  var data = fs.readFileSync('./data.json');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
-;
-
-app.get('favorites', function(req, res){
-  if(!req.body.name || !req.body.oid){
-    res.send("Error");
-    return
-  
-  var data = JSON.parse(fs.readFileSync('./data.json'));
-  data.push(req.body);
-  fs.writeFile('./data.json', JSON.stringify(data));
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+  Favorite.find({}, function (err, favorites) {
+    if (err) return handleError(err);
+    res.send(favorites)
+  })
 });
 
-app.list(3000, function(){
+app.post('/favorites', function(req, res){
+  var newFave = Favorite.create({oid: req.body.oid, name: req.body.name}, function(err, newFave) {
+      if (err) return handleError(err)
+       res.send(newFave)
+     })
+});
+
+app.listen(3000, function(){
   console.log("Listening on port 3000");
 });
