@@ -35,9 +35,8 @@ app.get('/favorites', function(req, res){
 });
 
 app.post('/favorites', function(req, res){
-  var newFave = new Favorite({oid: "save", name: "me"});
-   newFave.save(function(err) {
-      if (err) return handleError(err) 
+  var newFave = Favorite.create({oid: req.body.oid, name: req.body.name}, function(err, newFave) {
+      if (err) return handleError(err)
        res.send(newFave)
      })
 });
