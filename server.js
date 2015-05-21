@@ -3,29 +3,52 @@ var app = express();
 var bodyParser = require("body-parser")
 var fs = require('fs');
 var path = require('path');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/icc');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function (callback) {
+  console.log("Connection established to: ", db.name)
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
-
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+
+// 1. Define schema
+var favoriteSchema = mongoose.Schema({
+    old: Number,
+    name: String
+})
+
+// 2. Insantiate model
+var Favorite = mongoose.model('Favorite', favoriteSchema);
+
 app.get('/favorites', function(req, res){
-  var data = fs.readFileSync('./data.json');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+  Favorite.find(function(err, favorites){
+    if (!err) {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(favorites);
+       } 
+     else {
+      return console.log(err);
+    }
+  });
+
+
+
+
 });
 
 app.post('/favorites', function(req, res){
-  if(!req.body.name || !req.body.oid){
-    res.send("Error: [oid, name] are required.  Found: '" + Object.keys(req.body) + "'");
-    return
-  }
-  var data = JSON.parse(fs.readFileSync('./data.json'));
-  data.push(req.body);
-  fs.writeFile('./data.json', JSON.stringify(data));
+    var newFavorite = Favorite.create({
+      oid: req.body.oid, 
+      name: req.body.name
+    }), 
   res.setHeader('Content-Type', 'application/json');
-  res.send(data);
+  res.send(newFavorite);
 });
 
 app.listen(3000, function(){
