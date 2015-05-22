@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require("express");
 var app = express();
 var bodyParser = require("body-parser")
 var mongoose = require("mongoose");
@@ -12,8 +12,9 @@ db.once("open", function( callback ){
 
 var path = require('path');
 
-app.use(express.static(path.join(__dirname, '/public')));
-app.use(bodyParser.urlencoded({ extended: false }))
+app.set("view engine", "hbs");
+app.use(express.static(path.join(__dirname, "/public")));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var movieSchema = mongoose.Schema({
