@@ -1,11 +1,15 @@
-##Instructor Code Challenge
+##Instructor Code Challenge (extended)
 
 ---
 
 **Back-end Instructions**
 
-- This express applications contains several errors commonly made by students, so you will need to do some debugging to ensure they are working correctly.
-- Fix the errors, and submit a pull request with your solution.
+- Now that you've solved all the problems, let's enhance the app.
+- Replace the file based persistence with MongoDB, using mongoose.js.
+- Starting with:
+```
+npm install --save mongoose
+```
 
 ## A Working Solution will be able to:
 
@@ -15,3 +19,5 @@
     -`name`
 - `get /favorites`
   - list all favorites created from the above route.
+
+Just like before -- only now it's persisted to MongoDB.
